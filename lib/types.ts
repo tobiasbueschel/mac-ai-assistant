@@ -11,6 +11,9 @@ import type { ArtifactKind } from '@/components/artifact';
 import type { Suggestion } from './db/schema';
 import type { NewsToolType } from '@/ai/tools/news/tool';
 
+// Type for Apple MCP tools - these are dynamic tools from the MCP server
+export type AppleMCPTools = Record<string, any>;
+
 export type DataPart = { type: 'append-message'; message: string };
 
 export const messageMetadataSchema = z.object({
@@ -33,7 +36,7 @@ export type ChatTools = {
   requestSuggestions: requestSuggestionsTool;
   publicStatsTool: StatsToolType;
   newsSearchTool: NewsToolType;
-};
+} & AppleMCPTools;
 
 export type CustomUIDataTypes = {
   textDelta: string;

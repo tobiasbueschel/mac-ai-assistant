@@ -5,9 +5,9 @@ import {
   smoothStream,
   stepCountIs,
   streamText,
-} from 'ai';
-import { auth, type UserType } from '@/app/(auth)/auth';
-import { type RequestHints, systemPrompt } from '@/ai/prompts';
+} from "ai";
+import { auth, type UserType } from "@/app/(auth)/auth";
+import { type RequestHints, systemPrompt } from "@/ai/prompts";
 import {
   createStreamId,
   deleteChatById,
@@ -16,35 +16,39 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
-} from '@/lib/db/queries';
-import { updateChatLastContextById } from '@/lib/db/queries';
-import { convertToUIMessages, generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
-import { createDocument } from '@/ai/tools/create-document';
-import { updateDocument } from '@/ai/tools/update-document';
-import { requestSuggestions } from '@/ai/tools/request-suggestions';
-import { getWeather } from '@/ai/tools/get-weather';
-import { isProductionEnvironment } from '@/lib/constants';
-import { myProvider } from '@/ai/providers';
-import { entitlementsByUserType } from '@/ai/entitlements';
-import { postRequestBodySchema, type PostRequestBody } from './schema';
-import { geolocation } from '@vercel/functions';
+} from "@/lib/db/queries";
+import { updateChatLastContextById } from "@/lib/db/queries";
+import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import { generateTitleFromUserMessage } from "../../actions";
+import { createDocument } from "@/ai/tools/create-document";
+import { updateDocument } from "@/ai/tools/update-document";
+import { requestSuggestions } from "@/ai/tools/request-suggestions";
+import { getWeather } from "@/ai/tools/get-weather";
+import { isProductionEnvironment } from "@/lib/constants";
+import { myProvider } from "@/ai/providers";
+import { entitlementsByUserType } from "@/ai/entitlements";
+import { postRequestBodySchema, type PostRequestBody } from "./schema";
+import { geolocation } from "@vercel/functions";
 import {
   createResumableStreamContext,
   type ResumableStreamContext,
-} from 'resumable-stream';
-import { after } from 'next/server';
-import { ChatSDKError } from '@/lib/errors';
-import type { ChatMessage } from '@/lib/types';
-import type { ChatModel } from '@/ai/models';
-import type { VisibilityType } from '@/components/visibility-selector';
-import { unstable_cache as cache } from 'next/cache';
-import { fetchModels } from 'tokenlens/fetch';
-import { getUsage } from 'tokenlens/helpers';
-import type { ModelCatalog } from 'tokenlens/core';
-import type { AppUsage } from '@/lib/usage';
-import publicStatsTool from '@/ai/tools/stats/tool';
-import newsSearchTool from '@/ai/tools/news/tool';
+} from "resumable-stream";
+import { after } from "next/server";
+import { ChatSDKError } from "@/lib/errors";
+import type { ChatMessage } from "@/lib/types";
+import type { ChatModel } from "@/ai/models";
+import type { VisibilityType } from "@/components/visibility-selector";
+import { unstable_cache as cache } from "next/cache";
+import { fetchModels } from "tokenlens/fetch";
+import { getUsage } from "tokenlens/helpers";
+import type { ModelCatalog } from "tokenlens/core";
+import type { AppUsage } from "@/lib/usage";
+import publicStatsTool from "@/ai/tools/stats/tool";
+import newsSearchTool from "@/ai/tools/news/tool";
+import {
+  getAppleMCPTools,
+  closeAppleMCPClient,
+} from "@/lib/mcp/apple-mcp-client";
 
 export const maxDuration = 60;
 
@@ -56,14 +60,14 @@ const getTokenlensCatalog = cache(
       return await fetchModels();
     } catch (err) {
       console.warn(
-        'TokenLens: catalog fetch failed, using default catalog',
-        err,
+        "TokenLens: catalog fetch failed, using default catalog",
+        err
       );
       return undefined; // tokenlens helpers will fall back to defaultCatalog
     }
   },
-  ['tokenlens-catalog'],
-  { revalidate: 24 * 60 * 60 }, // 24 hours
+  ["tokenlens-catalog"],
+  { revalidate: 24 * 60 * 60 } // 24 hours
 );
 
 export function getStreamContext() {
@@ -73,9 +77,9 @@ export function getStreamContext() {
         waitUntil: after,
       });
     } catch (error: any) {
-      if (error.message.includes('REDIS_URL')) {
+      if (error.message.includes("REDIS_URL")) {
         console.log(
-          ' > Resumable streams are disabled due to missing REDIS_URL',
+          " > Resumable streams are disabled due to missing REDIS_URL"
         );
       } else {
         console.error(error);
@@ -93,7 +97,7 @@ export async function POST(request: Request) {
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
   } catch (_) {
-    return new ChatSDKError('bad_request:api').toResponse();
+    return new ChatSDKError("bad_request:api").toResponse();
   }
 
   try {
@@ -105,14 +109,14 @@ export async function POST(request: Request) {
     }: {
       id: string;
       message: ChatMessage;
-      selectedChatModel: ChatModel['id'];
+      selectedChatModel: ChatModel["id"];
       selectedVisibilityType: VisibilityType;
     } = requestBody;
 
     const session = await auth();
 
     if (!session?.user) {
-      return new ChatSDKError('unauthorized:chat').toResponse();
+      return new ChatSDKError("unauthorized:chat").toResponse();
     }
 
     const userType: UserType = session.user.type;
@@ -123,7 +127,7 @@ export async function POST(request: Request) {
     });
 
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-      return new ChatSDKError('rate_limit:chat').toResponse();
+      return new ChatSDKError("rate_limit:chat").toResponse();
     }
 
     const chat = await getChatById({ id });
@@ -141,7 +145,7 @@ export async function POST(request: Request) {
       });
     } else {
       if (chat.userId !== session.user.id) {
-        return new ChatSDKError('forbidden:chat').toResponse();
+        return new ChatSDKError("forbidden:chat").toResponse();
       }
     }
 
@@ -162,7 +166,7 @@ export async function POST(request: Request) {
         {
           chatId: id,
           id: message.id,
-          role: 'user',
+          role: "user",
           parts: message.parts,
           attachments: [],
           createdAt: new Date(),
@@ -176,24 +180,39 @@ export async function POST(request: Request) {
     let finalMergedUsage: AppUsage | undefined;
 
     const stream = createUIMessageStream({
-      execute: ({ writer: dataStream }) => {
+      execute: async ({ writer: dataStream }) => {
+        // Get Apple MCP tools with error handling
+        let appleMCPTools = {};
+        let appleMCPToolNames: string[] = [];
+
+        try {
+          appleMCPTools = await getAppleMCPTools();
+          appleMCPToolNames = Object.keys(appleMCPTools);
+        } catch (error) {
+          console.warn(
+            "Failed to load Apple MCP tools, continuing without them:",
+            error
+          );
+        }
+
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: convertToModelMessages(uiMessages),
           stopWhen: stepCountIs(5),
           experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
+            selectedChatModel === "chat-model-reasoning"
               ? []
-              : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
-                  'publicStatsTool',
-                  'newsSearchTool',
-                ],
-          experimental_transform: smoothStream({ chunking: 'word' }),
+              : ([
+                  "getWeather",
+                  "createDocument",
+                  "updateDocument",
+                  "requestSuggestions",
+                  "publicStatsTool",
+                  "newsSearchTool",
+                  ...appleMCPToolNames,
+                ] as any),
+          experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             newsSearchTool,
             publicStatsTool,
@@ -204,19 +223,20 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
+            ...appleMCPTools,
           },
           providerOptions: {
             openai: {
               store: false,
-              reasoningSummary: 'auto',
+              reasoningSummary: "auto",
               reasoning: {
-                reasoningEffort: 'low',
+                reasoningEffort: "low",
               },
             },
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
-            functionId: 'stream-text',
+            functionId: "stream-text",
           },
           onFinish: async ({ usage }) => {
             try {
@@ -226,7 +246,7 @@ export async function POST(request: Request) {
               if (!modelId) {
                 finalMergedUsage = usage;
                 dataStream.write({
-                  type: 'data-usage',
+                  type: "data-usage",
                   data: finalMergedUsage,
                 });
                 return;
@@ -235,7 +255,7 @@ export async function POST(request: Request) {
               if (!providers) {
                 finalMergedUsage = usage;
                 dataStream.write({
-                  type: 'data-usage',
+                  type: "data-usage",
                   data: finalMergedUsage,
                 });
                 return;
@@ -243,11 +263,11 @@ export async function POST(request: Request) {
 
               const summary = getUsage({ modelId, usage, providers });
               finalMergedUsage = { ...usage, ...summary, modelId } as AppUsage;
-              dataStream.write({ type: 'data-usage', data: finalMergedUsage });
+              dataStream.write({ type: "data-usage", data: finalMergedUsage });
             } catch (err) {
-              console.warn('TokenLens enrichment failed', err);
+              console.warn("TokenLens enrichment failed", err);
               finalMergedUsage = usage;
-              dataStream.write({ type: 'data-usage', data: finalMergedUsage });
+              dataStream.write({ type: "data-usage", data: finalMergedUsage });
             }
           },
         });
@@ -257,7 +277,7 @@ export async function POST(request: Request) {
         dataStream.merge(
           result.toUIMessageStream({
             sendReasoning: true,
-          }),
+          })
         );
       },
       generateId: generateUUID,
@@ -280,12 +300,19 @@ export async function POST(request: Request) {
               context: finalMergedUsage,
             });
           } catch (err) {
-            console.warn('Unable to persist last usage for chat', id, err);
+            console.warn("Unable to persist last usage for chat", id, err);
           }
+        }
+
+        // Clean up MCP client
+        try {
+          await closeAppleMCPClient();
+        } catch (err) {
+          console.warn("Failed to close Apple MCP client:", err);
         }
       },
       onError: () => {
-        return 'Oops, an error occurred!';
+        return "Oops, an error occurred!";
       },
     });
 
@@ -294,8 +321,8 @@ export async function POST(request: Request) {
     if (streamContext) {
       return new Response(
         await streamContext.resumableStream(streamId, () =>
-          stream.pipeThrough(new JsonToSseTransformStream()),
-        ),
+          stream.pipeThrough(new JsonToSseTransformStream())
+        )
       );
     } else {
       return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
@@ -309,35 +336,35 @@ export async function POST(request: Request) {
     if (
       error instanceof Error &&
       error.message?.includes(
-        'AI Gateway requires a valid credit card on file to service requests',
+        "AI Gateway requires a valid credit card on file to service requests"
       )
     ) {
-      return new ChatSDKError('bad_request:activate_gateway').toResponse();
+      return new ChatSDKError("bad_request:activate_gateway").toResponse();
     }
 
-    console.error('Unhandled error in chat API:', error);
-    return new ChatSDKError('offline:chat').toResponse();
+    console.error("Unhandled error in chat API:", error);
+    return new ChatSDKError("offline:chat").toResponse();
   }
 }
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+  const id = searchParams.get("id");
 
   if (!id) {
-    return new ChatSDKError('bad_request:api').toResponse();
+    return new ChatSDKError("bad_request:api").toResponse();
   }
 
   const session = await auth();
 
   if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
+    return new ChatSDKError("unauthorized:chat").toResponse();
   }
 
   const chat = await getChatById({ id });
 
   if (chat?.userId !== session.user.id) {
-    return new ChatSDKError('forbidden:chat').toResponse();
+    return new ChatSDKError("forbidden:chat").toResponse();
   }
 
   const deletedChat = await deleteChatById({ id });
