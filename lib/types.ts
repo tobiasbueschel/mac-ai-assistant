@@ -1,3 +1,4 @@
+import type { StatsToolType } from '@/ai/tools/stats/tool';
 import { z } from 'zod';
 import type { getWeather } from '../ai/tools/get-weather';
 import type { createDocument } from '../ai/tools/create-document';
@@ -29,6 +30,7 @@ export type ChatTools = {
   createDocument: createDocumentTool;
   updateDocument: updateDocumentTool;
   requestSuggestions: requestSuggestionsTool;
+  publicStatsTool: StatsToolType;
 };
 
 export type CustomUIDataTypes = {

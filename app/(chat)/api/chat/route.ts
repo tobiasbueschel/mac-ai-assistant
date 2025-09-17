@@ -43,6 +43,7 @@ import { fetchModels } from 'tokenlens/fetch';
 import { getUsage } from 'tokenlens/helpers';
 import type { ModelCatalog } from 'tokenlens/core';
 import type { AppUsage } from '@/lib/usage';
+import publicStatsTool from '@/ai/tools/stats/tool';
 
 export const maxDuration = 60;
 
@@ -188,9 +189,11 @@ export async function POST(request: Request) {
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
+                  'publicStatsTool',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           tools: {
+            publicStatsTool,
             getWeather,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),

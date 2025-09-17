@@ -24,6 +24,7 @@ import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
+import StatsChart from '@/ai/tools/stats/component';
 
 const PurePreviewMessage = ({
   chatId,
@@ -268,6 +269,29 @@ const PurePreviewMessage = ({
                 </Tool>
               );
             }
+
+            if (type === 'tool-publicStatsTool') {
+              const { toolCallId, state } = part;
+
+              console.log(part);
+
+              return (
+                <Tool key={toolCallId} defaultOpen={true}>
+                  <ToolHeader type="tool-publicStatsTool" state={state} />
+                  <ToolContent>
+                    {state === 'input-available' && (
+                      <ToolInput input={part.input} />
+                    )}
+                    {state === 'output-available' && (
+                      <ToolOutput
+                        output={<StatsChart {...part} />}
+                        errorText={undefined}
+                      />
+                    )}
+                  </ToolContent>
+                </Tool>
+              );
+            }
           })}
 
           {!isReadonly && (
@@ -293,10 +317,10 @@ export const PreviewMessage = memo(
     if (prevProps.message.id !== nextProps.message.id) return false;
     if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
       return false;
-    if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    // if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
     if (!equal(prevProps.vote, nextProps.vote)) return false;
 
-    return false;
+    return true;
   },
 );
 
