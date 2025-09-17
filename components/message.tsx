@@ -25,6 +25,7 @@ import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
 import StatsChart from '@/ai/tools/stats/component';
+import NewsList from '@/ai/tools/news/component';
 
 const PurePreviewMessage = ({
   chatId,
@@ -273,8 +274,6 @@ const PurePreviewMessage = ({
             if (type === 'tool-publicStatsTool') {
               const { toolCallId, state } = part;
 
-              console.log(part);
-
               return (
                 <Tool key={toolCallId} defaultOpen={true}>
                   <ToolHeader type="tool-publicStatsTool" state={state} />
@@ -285,6 +284,28 @@ const PurePreviewMessage = ({
                     {state === 'output-available' && (
                       <ToolOutput
                         output={<StatsChart {...part} />}
+                        errorText={undefined}
+                      />
+                    )}
+                  </ToolContent>
+                </Tool>
+              );
+            }
+
+            if (type === 'tool-newsSearchTool') {
+              const { toolCallId, state } = part;
+
+              return (
+                <Tool key={toolCallId} defaultOpen={true}>
+                  <ToolHeader type="tool-newsSearchTool" state={state} />
+
+                  <ToolContent>
+                    {state === 'input-available' && (
+                      <ToolInput input={part.input} />
+                    )}
+                    {state === 'output-available' && (
+                      <ToolOutput
+                        output={<NewsList {...part} />}
                         errorText={undefined}
                       />
                     )}

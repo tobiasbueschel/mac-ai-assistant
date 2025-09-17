@@ -9,6 +9,7 @@ import type { AppUsage } from './usage';
 
 import type { ArtifactKind } from '@/components/artifact';
 import type { Suggestion } from './db/schema';
+import type { NewsToolType } from '@/ai/tools/news/tool';
 
 export type DataPart = { type: 'append-message'; message: string };
 
@@ -31,6 +32,7 @@ export type ChatTools = {
   updateDocument: updateDocumentTool;
   requestSuggestions: requestSuggestionsTool;
   publicStatsTool: StatsToolType;
+  newsSearchTool: NewsToolType;
 };
 
 export type CustomUIDataTypes = {

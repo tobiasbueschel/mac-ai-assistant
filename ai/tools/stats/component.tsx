@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import type { StatsSeriesPoint, StatsToolType } from "./tool";
+import * as React from 'react';
+import type { StatsSeriesPoint, StatsToolType } from './tool';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   ChartContainer,
   ChartLegend,
@@ -16,14 +16,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { AreaChart, Area, CartesianGrid, XAxis, YAxis } from "recharts";
-import type { TooltipContentProps } from "recharts/types/component/Tooltip";
+} from '@/components/ui/chart';
+import { AreaChart, Area, CartesianGrid, XAxis, YAxis } from 'recharts';
+import type { TooltipContentProps } from 'recharts/types/component/Tooltip';
 import type {
   NameType,
   ValueType,
-} from "recharts/types/component/DefaultTooltipContent";
-import type { Props as DefaultLegendContentProps } from "recharts/types/component/DefaultLegendContent";
+} from 'recharts/types/component/DefaultTooltipContent';
+import type { Props as DefaultLegendContentProps } from 'recharts/types/component/DefaultLegendContent';
 
 export function StatsChart(part: StatsToolType) {
   if (!part.output) {
@@ -43,7 +43,7 @@ export function StatsChart(part: StatsToolType) {
   }
 
   const config: ChartConfig = {
-    count: { label: "Quakes", color: "var(--border)" },
+    count: { label: 'Quakes', color: 'var(--border)' },
   };
 
   const chartData =
@@ -55,7 +55,7 @@ export function StatsChart(part: StatsToolType) {
   return (
     <Card className="w-full max-w-3xl">
       <CardHeader>
-        <CardTitle>{part.output?.title ?? "Public Stats"}</CardTitle>
+        <CardTitle>{part.output?.title ?? 'Public Stats'}</CardTitle>
         <CardDescription>Source: USGS Earthquake Catalog</CardDescription>
       </CardHeader>
       <CardContent>
@@ -68,8 +68,8 @@ export function StatsChart(part: StatsToolType) {
             <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={8} />
             <YAxis
               tickFormatter={(v) =>
-                Intl.NumberFormat(undefined, { notation: "compact" }).format(
-                  Number(v)
+                Intl.NumberFormat(undefined, { notation: 'compact' }).format(
+                  Number(v),
                 )
               }
               tick={{ fontSize: 12 }}
@@ -98,8 +98,8 @@ export function StatsChart(part: StatsToolType) {
               name="Quakes"
               dot={{
                 r: 2,
-                stroke: "var(--color-count)",
-                fill: "var(--color-count)",
+                stroke: 'var(--color-count)',
+                fill: 'var(--color-count)',
               }}
               activeDot={{ r: 3 }}
             />
