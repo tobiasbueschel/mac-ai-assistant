@@ -7,7 +7,7 @@ import {
   streamText,
 } from 'ai';
 import { auth, type UserType } from '@/app/(auth)/auth';
-import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
+import { type RequestHints, systemPrompt } from '@/ai/prompts';
 import {
   createStreamId,
   deleteChatById,
@@ -20,13 +20,13 @@ import {
 import { updateChatLastContextById } from '@/lib/db/queries';
 import { convertToUIMessages, generateUUID } from '@/lib/utils';
 import { generateTitleFromUserMessage } from '../../actions';
-import { createDocument } from '@/lib/ai/tools/create-document';
-import { updateDocument } from '@/lib/ai/tools/update-document';
-import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
-import { getWeather } from '@/lib/ai/tools/get-weather';
+import { createDocument } from '@/ai/tools/create-document';
+import { updateDocument } from '@/ai/tools/update-document';
+import { requestSuggestions } from '@/ai/tools/request-suggestions';
+import { getWeather } from '@/ai/tools/get-weather';
 import { isProductionEnvironment } from '@/lib/constants';
-import { myProvider } from '@/lib/ai/providers';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
+import { myProvider } from '@/ai/providers';
+import { entitlementsByUserType } from '@/ai/entitlements';
 import { postRequestBodySchema, type PostRequestBody } from './schema';
 import { geolocation } from '@vercel/functions';
 import {
@@ -36,7 +36,7 @@ import {
 import { after } from 'next/server';
 import { ChatSDKError } from '@/lib/errors';
 import type { ChatMessage } from '@/lib/types';
-import type { ChatModel } from '@/lib/ai/models';
+import type { ChatModel } from '@/ai/models';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { unstable_cache as cache } from 'next/cache';
 import { fetchModels } from 'tokenlens/fetch';

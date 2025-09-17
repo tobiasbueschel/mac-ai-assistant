@@ -1,6 +1,6 @@
 import { customProvider } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { isTestEnvironment } from '../constants';
+import { isTestEnvironment } from '@/lib/constants';
 
 const openai = createOpenAI();
 

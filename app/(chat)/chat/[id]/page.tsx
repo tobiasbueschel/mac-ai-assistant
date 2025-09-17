@@ -5,7 +5,7 @@ import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
-import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
+import { DEFAULT_CHAT_MODEL } from '@/ai/models';
 import { convertToUIMessages } from '@/lib/utils';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {

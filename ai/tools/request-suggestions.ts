@@ -4,7 +4,7 @@ import { streamObject, tool, type UIMessageStreamWriter } from 'ai';
 import { getDocumentById, saveSuggestions } from '@/lib/db/queries';
 import type { Suggestion } from '@/lib/db/schema';
 import { generateUUID } from '@/lib/utils';
-import { myProvider } from '../providers';
+import { myProvider } from '@/ai/providers';
 import type { ChatMessage } from '@/lib/types';
 
 interface RequestSuggestionsProps {
