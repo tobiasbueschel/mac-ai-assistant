@@ -16,5 +16,8 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
+  },
+  "registries": {
+    "@ai-tools": "https://ai-tools-registry.vercel.app/api/registry/public/{name}"
   }
 }
